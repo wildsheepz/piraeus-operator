@@ -126,7 +126,7 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 
 .PHONY: compat-test
 compat-test: manifests generate fmt vet envtest-compat ## Run tests.
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use --use-deprecated-gcs $(ENVTEST_K8S_COMPAT_VERSION) --bin-dir $(LOCALBIN) -p path)" go test ./...
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST_COMPAT) use $(ENVTEST_K8S_COMPAT_VERSION) --bin-dir $(LOCALBIN) -p path)" go test ./...
 
 ##@ Build
 
@@ -230,8 +230,9 @@ set -e; \
 package=$(2)@$(3) ;\
 echo "Downloading $${package}" ;\
 rm -f $(1) || true ;\
-GOBIN=$(LOCALBIN) go install $${package} ;\
-mv $(1) $(1)-$(3) ;\
+GOBIN=$(1)-tmp-bin go install $${package} ;\
+mv $(1)-tmp-bin/* $(1)-$(3) ;\
+rmdir $(1)-tmp-bin ;\
 } ;\
 ln -sf $(1)-$(3) $(1)
 endef
